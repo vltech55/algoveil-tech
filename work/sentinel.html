@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentinel — Forensic interview intelligence · Case study · Algo Veil</title>
+<meta name="description" content="A long-form interview analysis platform for investigative teams — cross-document semantic search, structured extraction, human-in-the-loop analyst review workflow.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://algoveil.tech/work/sentinel.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230B1F3A'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='500' text-anchor='middle' fill='%23fff' letter-spacing='-1'%3EAV%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/work/case-study.css">
+</head>
+<body>
+
+<header>
+<div class="topstrip">
+  <div class="container topstrip__inner">
+    <span>Algo Veil Technologies · Case study · Client engagement</span>
+    <a href="mailto:hello@algoveil.tech">hello@algoveil.tech</a>
+  </div>
+</div>
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="/" class="brand"><span class="brand__mark">AV</span><span class="brand__names"><span class="brand__name">Algo Veil</span><span class="brand__tagline">Technologies · LLC</span></span></a>
+    <a href="/#work" class="nav__back"><span class="arrow">←</span>All work</a>
+  </div>
+</nav>
+</header>
+
+<main>
+<div class="container">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a><span>/</span><a href="/#work">Work</a><span>/</span><span style="color:var(--ink)">Sentinel</span>
+  </nav>
+</div>
+
+<section class="case-hero">
+  <div class="container">
+    <div class="case-hero__eyebrow">Case study · Analysis platform · Client engagement</div>
+    <h1>Sentinel — <em>hours of interviews,</em> minutes of insight.</h1>
+    <p class="case-hero__lede">A long-form interview intelligence platform for investigative analysts. Ingests hours of transcripts, surfaces cross-document patterns, extracts structured entities and claims, and keeps a human analyst firmly in the loop on every finding that ships into a case file.</p>
+    <div class="case-hero__meta">
+      <div><div class="case-hero__meta__k">Client</div><div class="case-hero__meta__v">Confidential · Analysis firm</div></div>
+      <div><div class="case-hero__meta__k">Timeline</div><div class="case-hero__meta__v">14 weeks · Q2 2026</div></div>
+      <div><div class="case-hero__meta__k">Team</div><div class="case-hero__meta__v">Founder-led · 1 engineer + 2 analysts</div></div>
+      <div><div class="case-hero__meta__k">Stack</div><div class="case-hero__meta__v">Django · Postgres · pgvector · Claude · React</div></div>
+    </div>
+    <div class="case-panel" aria-hidden="true" style="view-transition-name: case-hero-sentinel;">
+      <div class="case-panel__glow"></div>
+      <div class="case-panel__grid"></div>
+      <div class="case-panel__badge">
+        <div class="case-panel__badge__k">Design intent</div>
+        <div class="case-panel__badge__v">"Direct analyst attention to the fifteen minutes of transcript that matter — with a stronger audit trail than the manual process."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="case-body">
+  <div class="container" style="display:contents;">
+    <aside class="case-toc" aria-label="Case study sections">
+      <div class="case-toc__label">On this page</div>
+      <ol>
+        <li><a href="#context">Context</a></li>
+        <li><a href="#problem">The problem</a></li>
+        <li><a href="#approach">Approach</a></li>
+        <li><a href="#pipeline">Analysis pipeline</a></li>
+        <li><a href="#review">Analyst review workflow</a></li>
+        <li><a href="#trust">Trust &amp; audit trail</a></li>
+        <li><a href="#metrics">Metrics</a></li>
+        <li><a href="#outcome">Outcome</a></li>
+      </ol>
+    </aside>
+
+    <div class="case-content">
+      <h2 id="context">Context</h2>
+      <p>The client's analysts review long-form interview transcripts as part of investigative work. Individual interviews run one to three hours. A single case can involve twenty to eighty interviews. The manual first-pass review — reading every transcript, tagging entities, cross-referencing quotes — was consuming three to five analyst-days per case.</p>
+      <p>The bottleneck wasn't skill. It was the reading. They wanted a tool that could ingest the transcripts, surface the patterns that would justify a human read, and never take a finding to a case file without an analyst's explicit sign-off.</p>
+
+      <h2 id="problem">The problem</h2>
+      <p>Three constraints shaped the design:</p>
+      <ul>
+        <li><strong>The analyst must own every finding.</strong> A model can propose; only a human can promote a proposal to a case-file assertion.</li>
+        <li><strong>Every claim must be traceable to a source span.</strong> A quote in the case file must resolve back to a specific timestamp in a specific transcript, with the surrounding context preserved.</li>
+        <li><strong>Cross-document reasoning must be first-class.</strong> The whole point is finding patterns across interviews that a single-transcript read would miss.</li>
+      </ul>
+
+      <div class="pullquote">
+        The value isn't summarization. It's directing an analyst's attention to the fifteen minutes of transcript that matter, out of the eighty hours they'd otherwise be reading.
+        <cite>— From the engagement brief</cite>
+      </div>
+
+      <h2 id="approach">Approach</h2>
+      <p>Ingest, structure, cross-reference, and present — with the analyst holding the pen at every stage that materially affects the case file.</p>
+      <ul>
+        <li><strong>Ingest</strong> — transcripts are chunked by speaker turn, embedded, and indexed. Speaker-level metadata (identity, role, session) is preserved through the pipeline.</li>
+        <li><strong>Extract</strong> — a structured-extraction pass identifies entities (people, places, events, dates, amounts), claims (assertions of fact by the speaker), and relations (who is connected to whom by what interaction).</li>
+        <li><strong>Cross-reference</strong> — semantic search surfaces near-duplicate claims across interviews. Contradictions are flagged for analyst review, not resolved by the model.</li>
+        <li><strong>Present</strong> — the analyst workspace shows proposed findings in a review queue with confidence scores and source spans. Every promotion to the case file requires a click and a comment.</li>
+      </ul>
+
+      <h2 id="pipeline">Analysis pipeline</h2>
+      <div class="arch">
+        <div class="arch__label">Transcript → chunk → embed → extract → cross-ref → analyst queue</div>
+        <div class="arch__flow">
+          <div class="arch__node"><b>Transcript</b>upload</div>
+          <span class="arch__sep">→</span>
+          <div class="arch__node"><b>Chunk</b>speaker turn</div>
+          <span class="arch__sep">→</span>
+          <div class="arch__node"><b>Extract</b>entities · claims</div>
+          <span class="arch__sep">→</span>
+          <div class="arch__node"><b>Cross-ref</b>vector search</div>
+          <span class="arch__sep">→</span>
+          <div class="arch__node"><b>Review</b>analyst queue</div>
+        </div>
+      </div>
+      <p>Chunks are stored in Postgres with pgvector; the extract-and-flag pass runs as an async Celery task on ingest. Analysts see new findings on a real-time review board as they land — no page refresh, no batch delays.</p>
+
+      <h2 id="review">Analyst review workflow</h2>
+      <p>Every finding in the review queue has four possible actions:</p>
+      <ul>
+        <li><strong>Promote</strong> — the finding is correct and belongs in the case file. Requires a one-line justification.</li>
+        <li><strong>Edit &amp; promote</strong> — the finding is directionally right but the wording needs adjustment. Preserves the source span link.</li>
+        <li><strong>Dismiss</strong> — not relevant to this case. Adds a training signal for the extraction model.</li>
+        <li><strong>Escalate</strong> — this looks important but needs a second analyst. Assigns to a peer.</li>
+      </ul>
+      <p>Every action is logged with analyst identity, timestamp, and reasoning. The case file that ships to court has a full audit trail from the exhibit-quality quote back to the original transcript timestamp back to the analyst who approved it.</p>
+
+      <h2 id="trust">Trust &amp; audit trail</h2>
+      <p>No model output touches the case file directly. The extraction pass emits proposals; the review queue records analyst decisions; the case file is assembled from approved decisions only. If a finding is later challenged, the audit log shows the exact source span, the analyst who approved it, and the model version that surfaced it — reproducible six months later.</p>
+      <p>Model versions are pinned per case. Upgrading the extraction model on an active case is a deliberate action that requires re-review of any propagated findings — not a silent version bump.</p>
+
+      <h2 id="metrics">Metrics</h2>
+      <div class="metrics-inline">
+        <div class="metrics-inline__cell"><div class="metrics-inline__v"><em>4d→4h</em></div><div class="metrics-inline__l">First-pass review</div></div>
+        <div class="metrics-inline__cell"><div class="metrics-inline__v"><em>100%</em></div><div class="metrics-inline__l">Findings analyst-approved</div></div>
+        <div class="metrics-inline__cell"><div class="metrics-inline__v"><em>&lt;60</em>s</div><div class="metrics-inline__l">Ingest to reviewable</div></div>
+        <div class="metrics-inline__cell"><div class="metrics-inline__v"><em>14</em>wk</div><div class="metrics-inline__l">Time to production</div></div>
+      </div>
+
+      <h2 id="outcome">Outcome</h2>
+      <p>Sentinel is in production. Analysts now spend their time reviewing the fifteen most-relevant minutes of transcript per case instead of reading all eighty hours. The case files carry a stronger audit trail than the manual process ever did — every quote is traceable, every approval is logged, every model version is pinned.</p>
+      <p>The client's engineering team took over operational ownership at close of engagement. Extraction-model updates now go through their own eval-and-promote pipeline.</p>
+
+      <div class="pullquote">
+        The right measure of an analyst tool is whether the audit trail comes out stronger than the manual workflow it replaces — not just faster.
+        <cite>— Algo Veil engagement standard · Analyst tooling</cite>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="related">
+  <div class="container">
+    <div class="related__label">More work</div>
+    <h2 class="related__title">Related <em>engagements.</em></h2>
+    <div class="related__grid">
+      <a href="/work/cadence.html" class="related__card">
+        <div class="related__card__tag">Client · Voice AI</div>
+        <div class="related__card__title">Cadence — sub-500ms voice AI</div>
+        <p class="related__card__desc">Streaming STT → LLM → TTS · tenant-isolated PHI · 82% call auto-resolution.</p>
+      </a>
+      <a href="/work/acuity.html" class="related__card">
+        <div class="related__card__tag">Production RAG · OSS</div>
+        <div class="related__card__title">Acuity — hybrid retrieval, faithfulness eval</div>
+        <p class="related__card__desc">Hybrid BM25 + pgvector · RRF · cross-encoder rerank · 0.96 avg faithfulness.</p>
+      </a>
+      <a href="/work/bastion.html" class="related__card">
+        <div class="related__card__tag">LLM Gateway · OSS</div>
+        <div class="related__card__title">Bastion — multi-provider LLM gateway</div>
+        <p class="related__card__desc">Drop-in OpenAI-compatible API · circuit breakers · 71% cache hit · full observability.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container cta__inner">
+    <h2>Building analyst-in-the-loop <em>intelligence tooling?</em></h2>
+    <p>Thirty-minute discovery call. Written architecture and SOW before any commitment.</p>
+    <div class="cta__actions">
+      <a href="/#contact" class="btn btn--white">Schedule a call<span class="arrow">→</span></a>
+      <a href="mailto:hello@algoveil.tech" class="btn btn--ghost-light">hello@algoveil.tech</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container footer__inner">
+    <a href="/" class="brand"><span class="brand__mark">AV</span><span class="brand__names"><span class="brand__name">Algo Veil</span><span class="brand__tagline">Technologies · LLC</span></span></a>
+    <div>© <span id="y">2026</span> Algo Veil Technologies, LLC · Registered in Delaware, USA</div>
+    <div class="footer__legal"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/cookies.html">Cookies</a></div>
+  </div>
+</footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear();</script>
+</body>
+</html>

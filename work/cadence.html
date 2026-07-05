@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadence — Real-time voice AI · Case study · Algo Veil</title>
+<meta name="description" content="How Algo Veil built a sub-500ms STT → LLM → TTS voice AI pipeline with tenant-isolated data plane for an enterprise ad-tech client.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://algoveil.tech/work/cadence.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230B1F3A'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='500' text-anchor='middle' fill='%23fff' letter-spacing='-1'%3EAV%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/work/case-study.css">
+</head>
+<body>
+
+<header>
+<div class="topstrip">
+  <div class="container topstrip__inner">
+    <span>Algo Veil Technologies · Case study</span>
+    <a href="mailto:hello@algoveil.tech">hello@algoveil.tech</a>
+  </div>
+</div>
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="/" class="brand"><span class="brand__mark">AV</span><span class="brand__names"><span class="brand__name">Algo Veil</span><span class="brand__tagline">Technologies · LLC</span></span></a>
+    <a href="/#work" class="nav__back"><span class="arrow">←</span>All work</a>
+  </div>
+</nav>
+</header>
+
+<main>
+<div class="container">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a><span>/</span><a href="/#work">Work</a><span>/</span><span style="color:var(--ink)">Cadence</span>
+  </nav>
+</div>
+
+<section class="case-hero">
+  <div class="container">
+    <div class="case-hero__eyebrow">Case study · Voice AI</div>
+    <h1>Cadence — <em>sub-500ms</em> voice AI for high-volume payer calls.</h1>
+    <p class="case-hero__lede">A production voice AI pipeline pattern for inbound call automation — designed for <strong>sub-500ms round-trip latency</strong>, tenant-isolated data plane, and audit-quality call logging. The system was designed with <strong>PHI-handling patterns that fail closed</strong>; HIPAA-covered use is a client-side compliance program, not a claim we make about the code alone.</p>
+    <div class="case-hero__meta">
+      <div><div class="case-hero__meta__k">Client</div><div class="case-hero__meta__v">Confidential · Health-tech</div></div>
+      <div><div class="case-hero__meta__k">Timeline</div><div class="case-hero__meta__v">8 weeks · Q1 2026</div></div>
+      <div><div class="case-hero__meta__k">Team</div><div class="case-hero__meta__v">Founder-led · 1 engineer</div></div>
+      <div><div class="case-hero__meta__k">Stack</div><div class="case-hero__meta__v">WebRTC · Deepgram · Claude · ElevenLabs · Postgres</div></div>
+    </div>
+    <div class="case-panel" aria-hidden="true" style="view-transition-name: case-hero-cadence;">
+      <div class="case-panel__glow"></div>
+      <div class="case-panel__grid"></div>
+      <div class="case-panel__badge">
+        <div class="case-panel__badge__k">Delivery standard</div>
+        <div class="case-panel__badge__v">"Sub-500ms target, instrumented from commit one, handoff-ready by close of engagement."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="case-body">
+  <div class="container" style="display:contents;">
+    <aside class="case-toc" aria-label="Case study sections">
+      <div class="case-toc__label">On this page</div>
+      <ol>
+        <li><a href="#context">Context</a></li>
+        <li><a href="#problem">The problem</a></li>
+        <li><a href="#approach">Approach</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#latency">Latency budget</a></li>
+        <li><a href="#tenancy">Tenant isolation</a></li>
+        <li><a href="#operate">Operate &amp; measure</a></li>
+        <li><a href="#outcome">Outcome</a></li>
+      </ol>
+    </aside>
+
+    <div class="case-content">
+      <h2 id="context">Context</h2>
+      <p>An enterprise health-tech client operated a high-volume inbound call center handling payer authorization requests. Each call required verifying member identity, retrieving policy coverage, capturing structured intake data, and routing to a human agent only for exceptions.</p>
+      <p>The existing IVR was rigid, average handle time was climbing, and the client was hiring rapidly to keep up. They wanted a voice AI that could handle the routine 80% of calls end-to-end with human backup on exceptions — without changing the caller's expectation of a fast, natural conversation.</p>
+
+      <h2 id="problem">The problem</h2>
+      <p>Three constraints, all non-negotiable:</p>
+      <ul>
+        <li><strong>Round-trip latency under 500ms</strong> — anything slower reads as robotic and callers hang up.</li>
+        <li><strong>Tenant isolation at the data plane, PHI-handling patterns that fail closed</strong> — sensitive records could never cross tenant boundaries, and the audit trail had to make that structurally provable.</li>
+        <li><strong>Explicit handoff at exceptions</strong> — the system had to know when it wasn't confident and route to a human without silently guessing.</li>
+      </ul>
+
+      <div class="pullquote">
+        Latency was the make-or-break constraint. Everything downstream had to fit inside a strict budget, and every model call was a hard-priced decision.
+        <cite>— From the engagement brief</cite>
+      </div>
+
+      <h2 id="approach">Approach</h2>
+      <p>Rather than chain three separate providers, we designed the pipeline as a single streaming graph where each stage could hand partial results forward before finishing:</p>
+      <ul>
+        <li><strong>STT streams token-by-token</strong> — the LLM starts generating on the first intent-carrying token, not after end-of-utterance.</li>
+        <li><strong>LLM streams to TTS</strong> — TTS starts vocalizing on the first sentence-boundary token; the tail of the LLM response streams into the tail of speech synthesis without buffering.</li>
+        <li><strong>Speculative endpointing</strong> — if the caller pauses mid-utterance, the LLM speculates an answer against the partial transcript and prewarms; if the caller keeps talking, the speculation is discarded.</li>
+      </ul>
+
+      <h2 id="architecture">Architecture</h2>
+      <div class="arch">
+        <div class="arch__label">STT → LLM → TTS · streaming, tenant-scoped, audited</div>
+        <div class="arch__flow">
+          <div class="arch__node"><b>Caller</b>WebRTC</div>
+          <span class="arch__sep">→</span>
+          <div class="arch__node"><b>STT</b>Deepgram</div>
+          <span class="arch__sep">→</span>
+          <div class="arch__node"><b>LLM</b>Claude · streaming</div>
+          <span class="arch__sep">→</span>
+          <div class="arch__node"><b>TTS</b>ElevenLabs</div>
+          <span class="arch__sep">→</span>
+          <div class="arch__node"><b>Caller</b>WebRTC</div>
+        </div>
+      </div>
+      <p>All three model providers are wrapped behind a single tenant-scoped gateway that (a) enforces per-tenant model and rate policy, (b) writes every request/response to an append-only audit log keyed to <code>tenant_id + call_id</code>, and (c) never allows a request from tenant A to reach a session key or context belonging to tenant B — enforced at the database layer with Postgres row-level security fail-closed policies.</p>
+
+      <h2 id="latency">Latency budget</h2>
+      <p>The 500ms round-trip target was split into a strict budget:</p>
+      <div class="code"><span class="k">STT first-token</span>          →  <span class="k">80ms</span>
+<span class="k">STT stream to LLM</span>        →  <span class="k">40ms</span>
+<span class="k">LLM first-token (streaming)</span> →  <span class="k">180ms</span>
+<span class="k">LLM stream to TTS</span>        →  <span class="k">40ms</span>
+<span class="k">TTS first-audio</span>          →  <span class="k">120ms</span>
+<span class="k">Buffer / network</span>          →  <span class="k">40ms</span>
+                              ─────
+<span class="k">Total</span>                          <span class="k">500ms</span></div>
+      <p>The LLM budget was the tightest and required (a) provider-side streaming enabled, (b) system prompt and few-shot examples kept under 2 KB, and (c) a single provider region colocated with the caller's WebRTC edge.</p>
+
+      <h2 id="tenancy">Tenant isolation</h2>
+      <p>Sensitive records were designed to fail closed at the tenant boundary — a property the client's compliance team wanted structurally provable, not merely asserted at the application layer. The architecture supports that with three enforcement points:</p>
+      <ul>
+        <li>Every table in the data plane has a <code>tenant_id</code> column enforced at insert with a database-level trigger.</li>
+        <li>Every read uses a session variable set from the authenticated JWT — Postgres RLS refuses any query that would return a row from a different tenant.</li>
+        <li>The gateway that fans out to LLM/STT/TTS uses per-tenant API keys where available; where a shared key must be used, request bodies are stripped of PHI and only opaque token IDs pass to the provider.</li>
+      </ul>
+
+      <h2 id="operate">Operate &amp; measure</h2>
+      <p>Instrumented from commit one, not retrofitted at handoff. Prometheus scrapes per-stage latency histograms; Grafana dashboards track p50/p95/p99 by tenant, model, and endpoint. Every call is scored offline against a golden-set eval harness that runs on merge to main; regression above ε aborts the deploy.</p>
+
+      <div class="metrics-inline">
+        <div class="metrics-inline__cell"><div class="metrics-inline__v">&lt;<em>500</em>ms</div><div class="metrics-inline__l">p95 round-trip</div></div>
+        <div class="metrics-inline__cell"><div class="metrics-inline__v"><em>8</em>wk</div><div class="metrics-inline__l">Time to production</div></div>
+        <div class="metrics-inline__cell"><div class="metrics-inline__v"><em>fail-closed</em></div><div class="metrics-inline__l">Tenant boundary</div></div>
+        <div class="metrics-inline__cell"><div class="metrics-inline__v"><em>82%</em></div><div class="metrics-inline__l">Call auto-resolution</div></div>
+      </div>
+
+      <h2 id="outcome">Outcome</h2>
+      <p>Cadence ran the target inbound queue end-to-end for the first month with a human agent monitoring exceptions. After the first quarter, average handle time dropped materially, the hiring plan was scaled back, and the operations team took over day-two ownership using the runbooks and Grafana dashboards handed off at close of engagement.</p>
+      <p>The system continues to run in production. The evaluation harness scores every deploy, and the audit trail on tenant isolation has held clean under review. The client's engineers now add golden-set examples as they discover them.</p>
+
+      <div class="pullquote">
+        Every voice AI engagement targets sub-500ms round-trip, is instrumented from commit one, and hands off with a runbook, a Grafana dashboard, and a working eval harness. That's the delivery standard, not a stretch goal.
+        <cite>— Algo Veil engagement standard · Voice AI</cite>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="related">
+  <div class="container">
+    <div class="related__label">More work</div>
+    <h2 class="related__title">Related <em>engagements.</em></h2>
+    <div class="related__grid">
+      <a href="/work/acuity.html" class="related__card">
+        <div class="related__card__tag">Production RAG · OSS</div>
+        <div class="related__card__title">Acuity — hybrid retrieval, faithfulness eval</div>
+        <p class="related__card__desc">Hybrid BM25 + pgvector · reciprocal rank fusion · per-claim citation faithfulness · 0.96 avg.</p>
+      </a>
+      <a href="/work/bastion.html" class="related__card">
+        <div class="related__card__tag">LLM Gateway · OSS</div>
+        <div class="related__card__title">Bastion — multi-provider LLM gateway</div>
+        <p class="related__card__desc">Drop-in OpenAI-compatible API · circuit breakers · 71% cache hit · full observability.</p>
+      </a>
+      <a href="/work/sentinel.html" class="related__card">
+        <div class="related__card__tag">Client · Analysis</div>
+        <div class="related__card__title">Sentinel — forensic interview analysis</div>
+        <p class="related__card__desc">Long-form intelligence · cross-document search · structured extraction · human review workflow.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container cta__inner">
+    <h2>Have a system like this <em>in mind?</em></h2>
+    <p>Thirty-minute discovery call. Written architecture and SOW before any commitment.</p>
+    <div class="cta__actions">
+      <a href="/#contact" class="btn btn--white">Schedule a call<span class="arrow">→</span></a>
+      <a href="mailto:hello@algoveil.tech" class="btn btn--ghost-light">hello@algoveil.tech</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container footer__inner">
+    <a href="/" class="brand"><span class="brand__mark">AV</span><span class="brand__names"><span class="brand__name">Algo Veil</span><span class="brand__tagline">Technologies · LLC</span></span></a>
+    <div>© <span id="y">2026</span> Algo Veil Technologies, LLC · Registered in Delaware, USA</div>
+    <div class="footer__legal"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/cookies.html">Cookies</a></div>
+  </div>
+</footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear();</script>
+</body>
+</html>

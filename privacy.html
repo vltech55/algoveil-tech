@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Algo Veil Technologies</title>
+<meta name="description" content="How Algo Veil Technologies handles personal data on this website and during engagements.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://algoveil.tech/privacy.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230B1F3A'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='500' text-anchor='middle' fill='%23fff' letter-spacing='-1'%3EAV%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFFFFF;
+  --surface: #F5F7FA;
+  --ink: #0B1F3A;
+  --ink-2: #34435C;
+  --ink-3: #56637A;
+  --muted: #7A8598;
+  --rule: #E4E8EF;
+  --accent: #0057B7;
+  --gold: #C9A961;
+  --serif: "Fraunces", "Iowan Old Style", Palatino, Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --gutter: clamp(20px, 4vw, 56px);
+  --content: 1120px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); }
+body { font-family: var(--sans); font-size: 16px; line-height: 1.7; color: var(--ink-2); -webkit-font-smoothing: antialiased; letter-spacing: -0.003em; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+.container { max-width: var(--content); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* Header */
+.topstrip { background: var(--ink); color: rgba(255,255,255,0.85); padding: 10px 0; font-size: 12.5px; }
+.topstrip__inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+.topstrip a { color: rgba(255,255,255,0.9); }
+.topstrip a:hover { color: #fff; }
+
+.nav { background: rgba(255,255,255,0.94); backdrop-filter: blur(20px); border-bottom: 1px solid var(--rule); position: sticky; top: 0; z-index: 50; }
+.nav__inner { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; gap: 32px; }
+.brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); }
+.brand__mark { width: 34px; height: 34px; background: var(--ink); color: var(--bg); display: inline-flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 500; font-size: 18px; border-radius: 2px; letter-spacing: -0.02em; }
+.brand__names { display: flex; flex-direction: column; line-height: 1.1; }
+.brand__name { font-family: var(--serif); font-weight: 500; font-size: 18px; letter-spacing: -0.02em; color: var(--ink); }
+.brand__tagline { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+.nav__back { font-size: 14px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 8px; }
+.nav__back:hover { color: var(--accent); text-decoration: none; }
+.nav__back .arrow { transition: transform 200ms; }
+.nav__back:hover .arrow { transform: translateX(-3px); }
+
+/* Hero */
+.legal-hero { padding: 80px 0 40px; border-bottom: 1px solid var(--rule); }
+.legal-hero__eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 24px;
+}
+.legal-hero__eyebrow::before { content: ""; display: inline-block; width: 32px; height: 1px; background: var(--accent); }
+.legal-hero h1 {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1.05; letter-spacing: -0.028em;
+  color: var(--ink); margin: 0 0 20px;
+  max-width: 20ch; text-wrap: balance;
+  font-optical-sizing: auto;
+}
+.legal-hero h1 em { font-style: italic; color: var(--accent); }
+.legal-hero__meta {
+  display: flex; gap: 24px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-top: 24px;
+}
+.legal-hero__meta b { color: var(--ink); font-weight: 500; }
+
+/* Body */
+.legal-body { padding: 60px 0 100px; display: grid; grid-template-columns: 260px 1fr; gap: 60px; align-items: start; }
+.legal-toc {
+  position: sticky; top: 90px;
+  border-left: 2px solid var(--rule);
+  padding-left: 20px;
+}
+.legal-toc__label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+.legal-toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+.legal-toc li { counter-increment: toc; margin-bottom: 8px; }
+.legal-toc a {
+  display: block; color: var(--ink-2); font-size: 13.5px; padding: 4px 0;
+  transition: color 150ms; line-height: 1.4;
+}
+.legal-toc a::before {
+  content: counter(toc, decimal-leading-zero) " · ";
+  font-family: var(--mono); color: var(--muted); font-size: 11px;
+}
+.legal-toc a:hover { color: var(--accent); text-decoration: none; }
+
+.legal-content { max-width: 720px; }
+.legal-content h2 {
+  font-family: var(--serif); font-weight: 400;
+  font-size: 30px; line-height: 1.1; letter-spacing: -0.024em;
+  color: var(--ink); margin: 56px 0 20px;
+  font-optical-sizing: auto;
+  scroll-margin-top: 90px;
+}
+.legal-content h2:first-child { margin-top: 0; }
+.legal-content h2::before {
+  content: counter(section, decimal-leading-zero);
+  counter-increment: section;
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em;
+  color: var(--accent); margin-right: 14px;
+  vertical-align: 4px;
+}
+.legal-content { counter-reset: section; }
+.legal-content h3 {
+  font-family: var(--sans); font-weight: 500;
+  font-size: 16px; color: var(--ink);
+  margin: 32px 0 12px; letter-spacing: -0.005em;
+}
+.legal-content p { margin: 0 0 16px; font-size: 16px; line-height: 1.7; color: var(--ink-2); }
+.legal-content ul { margin: 0 0 20px; padding-left: 20px; }
+.legal-content li { margin-bottom: 8px; font-size: 15.5px; line-height: 1.65; }
+.legal-content strong { color: var(--ink); font-weight: 500; }
+.legal-content .callout {
+  padding: 20px 24px; background: var(--surface);
+  border-left: 3px solid var(--accent);
+  margin: 24px 0;
+  font-size: 15px;
+}
+.legal-content .callout strong { display: block; color: var(--ink); margin-bottom: 4px; }
+.legal-content table {
+  width: 100%; border-collapse: collapse; margin: 20px 0;
+  font-size: 14.5px;
+}
+.legal-content th, .legal-content td {
+  padding: 12px 16px; text-align: left;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+.legal-content th { font-weight: 500; color: var(--ink); background: var(--surface); font-size: 13px; letter-spacing: 0; }
+
+/* Footer */
+footer { background: var(--ink); color: rgba(255,255,255,0.7); padding: 40px 0 32px; }
+.footer__inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; font-size: 13px; }
+.footer__inner .brand__mark { background: var(--bg); color: var(--ink); }
+.footer__inner .brand__name { color: var(--bg); }
+.footer__inner .brand__tagline { color: rgba(255,255,255,0.5); }
+.footer__legal { display: flex; gap: 20px; }
+.footer__legal a { color: rgba(255,255,255,0.75); }
+.footer__legal a:hover { color: var(--gold); text-decoration: none; }
+
+@media (max-width: 900px) {
+  .legal-body { grid-template-columns: 1fr; gap: 32px; }
+  .legal-toc { position: static; }
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0B0F16; --surface:#131924; --ink:#F5F7FA; --ink-2:rgba(245,247,250,0.78); --ink-3:rgba(245,247,250,0.60); --muted:rgba(245,247,250,0.42); --rule:rgba(255,255,255,0.10); --rule-strong:rgba(255,255,255,0.20); --accent:#4B9EFF; }
+  html, body { background: var(--bg); }
+  .nav { background: rgba(11,15,22,0.85); }
+  .brand__mark { background: var(--ink); color: var(--bg); }
+  .legal-content .callout { background: var(--surface); color: var(--ink-2); }
+  .legal-content table th { background: var(--surface); color: var(--ink); }
+  .legal-content code { background: rgba(255,255,255,0.06); color: var(--ink); padding: 1px 4px; border-radius: 2px; }
+  footer { background: #050810; }
+  .footer__inner .brand__mark { background: var(--ink); color: var(--bg); }
+}
+@media (max-width: 600px) {
+  .topstrip__inner { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .nav__inner { flex-wrap: wrap; }
+}
+@media print {
+  .nav, .topstrip, .nav__back, .legal-toc { display: none; }
+  footer { background: transparent; color: #000; padding: 20px 0; }
+  body { color: #000; }
+  a { color: #000; text-decoration: underline; }
+  .legal-content h2::before { color: #000; }
+  .legal-body { display: block; }
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="topstrip">
+  <div class="container topstrip__inner">
+    <span>Algo Veil Technologies · Privacy Policy</span>
+    <a href="mailto:privacy@algoveil.tech">privacy@algoveil.tech</a>
+  </div>
+</div>
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="/" class="brand">
+      <span class="brand__mark">AV</span>
+      <span class="brand__names">
+        <span class="brand__name">Algo Veil</span>
+        <span class="brand__tagline">Technologies · LLC</span>
+      </span>
+    </a>
+    <a href="/" class="nav__back"><span class="arrow">←</span>Back to home</a>
+  </div>
+</nav>
+</header>
+
+<main>
+<section class="legal-hero">
+  <div class="container">
+    <div class="legal-hero__eyebrow">Legal</div>
+    <h1>Privacy <em>Policy</em></h1>
+    <p style="max-width: 640px; font-size: 18px; color: var(--ink-2); line-height: 1.55;">How Algo Veil Technologies, LLC collects, uses, and protects personal information on this website and during client engagements.</p>
+    <div class="legal-hero__meta">
+      <span><b>Effective:</b> 2026-01-15</span>
+      <span><b>Last updated:</b> 2026-07-02</span>
+      <span><b>Version:</b> 1.0</span>
+    </div>
+  </div>
+</section>
+
+<section class="legal-body">
+  <div class="container" style="display: contents;">
+    <aside class="legal-toc" aria-label="Table of contents">
+      <div class="legal-toc__label">On this page</div>
+      <ol>
+        <li><a href="#who-we-are">Who we are</a></li>
+        <li><a href="#what-we-collect">What we collect</a></li>
+        <li><a href="#processors">Third-party data processors</a></li>
+        <li><a href="#lawful-basis">Lawful basis for processing</a></li>
+        <li><a href="#retention">Data retention</a></li>
+        <li><a href="#your-rights">Your rights</a></li>
+        <li><a href="#security">Security</a></li>
+        <li><a href="#changes">Changes to this policy</a></li>
+        <li><a href="#contact">Contact us</a></li>
+      </ol>
+    </aside>
+
+    <div class="legal-content">
+      <h2 id="who-we-are">Who we are</h2>
+      <p>Algo Veil Technologies, LLC ("Algo Veil", "we", "us") is a software engineering and AI/ML architecture consultancy registered in Delaware, United States. This policy describes how we handle personal information collected via <strong>algoveil.tech</strong> and during client engagements.</p>
+      <p>For any privacy question, contact <a href="mailto:privacy@algoveil.tech">privacy@algoveil.tech</a>.</p>
+
+      <h2 id="what-we-collect">What we collect</h2>
+      <p>We collect the minimum information required to respond to inquiries and deliver engagements.</p>
+      <h3>Website visitors</h3>
+      <ul>
+        <li><strong>Contact form submissions</strong> — name, email address, company (optional), project type, and message content.</li>
+        <li><strong>Direct email correspondence</strong> — content of messages sent to any @algoveil.tech address.</li>
+        <li><strong>Server logs</strong> — IP address, user agent, referring URL, and request timestamp, retained for 30 days for security and diagnostics.</li>
+      </ul>
+      <p>We do <strong>not</strong> use third-party analytics, ad networks, session recording, or cross-site tracking. No advertising cookies are set. See our <a href="/cookies.html">Cookie Policy</a> for full detail.</p>
+
+      <h3>Client engagements</h3>
+      <ul>
+        <li><strong>Business contact information</strong> for authorized client representatives.</li>
+        <li><strong>Technical access credentials</strong> and data required to deliver the engagement, handled under the Master Services Agreement and Data Processing Addendum in force between the parties.</li>
+      </ul>
+
+      <h2 id="processors">Third-party data processors</h2>
+      <p>The following processors help operate this website. Each is bound by its own privacy terms.</p>
+      <table>
+        <thead><tr><th>Processor</th><th>Purpose</th><th>Data received</th></tr></thead>
+        <tbody>
+          <tr><td>Google Fonts</td><td>Web font delivery (Fraunces)</td><td>IP address (transient)</td></tr>
+          <tr><td>Unsplash</td><td>Public image CDN</td><td>IP address, request headers</td></tr>
+          <tr><td>GitHub</td><td>Public raw asset hosting (screenshots)</td><td>IP address, request headers</td></tr>
+          <tr><td>Email provider</td><td>Delivery of transactional email</td><td>Sender/recipient address, message body</td></tr>
+        </tbody>
+      </table>
+      <p>We do not sell or share personal information with third parties for advertising or resale.</p>
+
+      <h2 id="lawful-basis">Lawful basis for processing</h2>
+      <p>Where the GDPR or equivalent regulation applies, we process personal data under one or more of:</p>
+      <ul>
+        <li><strong>Legitimate interest</strong> — responding to inbound inquiries, operating and securing the website.</li>
+        <li><strong>Contract performance</strong> — delivering engagements agreed under an MSA/SOW.</li>
+        <li><strong>Consent</strong> — where explicitly given (for example, subscribing to updates, if offered).</li>
+        <li><strong>Legal obligation</strong> — retention required by applicable tax, corporate, or accounting law.</li>
+      </ul>
+
+      <h2 id="retention">Data retention</h2>
+      <ul>
+        <li>Contact form submissions and inquiries: <strong>24 months</strong> after last contact, then deleted.</li>
+        <li>Server logs: <strong>30 days</strong>.</li>
+        <li>Client engagement records: as required by the MSA/SOW and applicable law, typically <strong>seven years</strong> for accounting purposes.</li>
+      </ul>
+
+      <h2 id="your-rights">Your rights</h2>
+      <p>Depending on your jurisdiction, you may have the right to:</p>
+      <ul>
+        <li>Access the personal information we hold about you</li>
+        <li>Correct inaccurate information</li>
+        <li>Request deletion ("right to be forgotten")</li>
+        <li>Object to or restrict processing</li>
+        <li>Data portability</li>
+        <li>Withdraw consent where consent is the basis for processing</li>
+        <li>Lodge a complaint with your data protection authority</li>
+      </ul>
+      <p>To exercise any of these rights, email <a href="mailto:privacy@algoveil.tech">privacy@algoveil.tech</a>. We aim to respond within 30 days.</p>
+
+      <div class="callout">
+        <strong>California residents</strong>
+        Under the CCPA/CPRA you have the additional right to know what personal information we collect, to request deletion, to correct inaccurate information, and to opt out of any sale or sharing of personal information. We do not sell or share personal information as defined under those statutes.
+      </div>
+
+      <h2 id="security">Security</h2>
+      <p>We follow reasonable technical and organizational measures to protect personal information, including encryption in transit (TLS 1.2+), least-privilege access controls, and audited logging on production systems. For client engagements, additional controls are defined in the MSA/DPA in force.</p>
+      <p>Algo Veil Technologies, LLC carries professional errors &amp; omissions and cyber liability insurance.</p>
+
+      <h2 id="changes">Changes to this policy</h2>
+      <p>We may update this policy from time to time. Material changes will be reflected by an updated "Effective" date at the top of this page. Changes take effect on posting; continued use of the website constitutes acceptance.</p>
+
+      <h2 id="contact">Contact us</h2>
+      <p>Questions or requests about this policy:</p>
+      <p><strong>Algo Veil Technologies, LLC</strong><br>
+      Attn: Privacy<br>
+      c/o Registered Agent<br>
+      Wilmington, Delaware, United States<br>
+      <a href="mailto:privacy@algoveil.tech">privacy@algoveil.tech</a></p>
+      <p style="color:var(--muted);font-size:13.5px;">To reach the human writing back to you, email is by far the fastest channel.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container footer__inner">
+    <a href="/" class="brand">
+      <span class="brand__mark">AV</span>
+      <span class="brand__names">
+        <span class="brand__name">Algo Veil</span>
+        <span class="brand__tagline">Technologies · LLC</span>
+      </span>
+    </a>
+    <div>© <span id="y">2026</span> Algo Veil Technologies, LLC · Registered in Delaware, USA</div>
+    <div class="footer__legal">
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+      <a href="/cookies.html">Cookies</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('y').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

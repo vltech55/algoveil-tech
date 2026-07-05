@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — Page not found · Algo Veil Technologies</title>
+<meta name="robots" content="noindex,follow">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230B1F3A'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='500' text-anchor='middle' fill='%23fff' letter-spacing='-1'%3EAV%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#FFFFFF;--surface:#F5F7FA;--ink:#0B1F3A;--ink-2:#34435C;--muted:#7A8598;--rule:#E4E8EF;--accent:#0057B7;--gold:#C9A961;--serif:"Fraunces","Iowan Old Style",Palatino,Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI Variable","Segoe UI","Helvetica Neue",Arial,sans-serif;--mono:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;--gutter:clamp(20px,4vw,56px);--content:1120px; }
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);min-height:100%}html{height:100%}body{font-family:var(--sans);font-size:16px;line-height:1.55;color:var(--ink-2);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;letter-spacing:-0.003em}a{color:inherit;text-decoration:none}:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.container{max-width:var(--content);margin:0 auto;padding:0 var(--gutter);width:100%}
+.topstrip{background:var(--ink);color:rgba(255,255,255,0.85);padding:10px 0;font-size:12.5px}
+.nav{background:rgba(255,255,255,0.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--rule)}
+.nav__inner{display:flex;align-items:center;justify-content:space-between;padding:18px 0;gap:32px}
+.brand{display:inline-flex;align-items:center;gap:12px;color:var(--ink)}
+.brand__mark{width:34px;height:34px;background:var(--ink);color:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:500;font-size:18px;border-radius:2px;letter-spacing:-0.02em}
+.brand__names{display:flex;flex-direction:column;line-height:1.1}
+.brand__name{font-family:var(--serif);font-weight:500;font-size:18px;letter-spacing:-0.02em;color:var(--ink)}
+.brand__tagline{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.stage{flex:1;display:flex;align-items:center;padding:80px 0;background:radial-gradient(ellipse 60% 40% at 20% 60%,rgba(0,87,183,0.05),transparent 70%),radial-gradient(ellipse 40% 40% at 90% 30%,rgba(201,169,97,0.06),transparent 70%),var(--bg)}
+.stage__grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.stage__eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);margin-bottom:24px}
+.stage__eyebrow::before{content:"";display:inline-block;width:32px;height:1px;background:var(--accent)}
+.stage__code{font-family:var(--serif);font-size:clamp(120px,20vw,240px);font-weight:400;line-height:0.9;letter-spacing:-0.05em;color:var(--ink);margin:0;font-optical-sizing:auto;font-variant-numeric:tabular-nums}
+.stage__code em{font-style:italic;color:var(--accent)}
+.stage__title{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,48px);line-height:1.05;letter-spacing:-0.028em;color:var(--ink);margin:0 0 20px;text-wrap:balance;font-optical-sizing:auto}
+.stage__title em{font-style:italic;color:var(--accent)}
+.stage__desc{font-size:17px;line-height:1.6;color:var(--ink-2);max-width:480px;margin-bottom:32px}
+.stage__ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 24px;font-family:var(--sans);font-size:14px;font-weight:500;line-height:1.2;border-radius:2px;border:1px solid transparent;cursor:pointer;transition:all 200ms ease;letter-spacing:0.005em;text-decoration:none}
+.btn--primary{background:var(--ink);color:var(--bg)}
+.btn--primary:hover{background:var(--accent)}
+.btn--secondary{background:transparent;color:var(--ink);border-color:var(--ink)}
+.btn--secondary:hover{background:var(--ink);color:var(--bg)}
+.btn .arrow{transition:transform 200ms}
+.btn:hover .arrow{transform:translateX(3px)}
+.suggestions{padding-top:32px;border-top:1px solid var(--rule)}
+.suggestions__label{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.suggestions__list{display:flex;flex-direction:column;gap:4px}
+.suggestions__list a{display:flex;justify-content:space-between;padding:10px 0;color:var(--ink-2);font-size:14px;border-bottom:1px solid var(--rule);transition:color 150ms}
+.suggestions__list a:hover{color:var(--accent)}
+.suggestions__list a .arrow{color:var(--muted);transition:transform 200ms,color 150ms}
+.suggestions__list a:hover .arrow{color:var(--accent);transform:translateX(3px)}
+footer{background:var(--ink);color:rgba(255,255,255,0.7);padding:32px 0;font-size:13px}
+.footer__inner{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.footer__inner .brand__mark{background:var(--bg);color:var(--ink)}
+.footer__inner .brand__name{color:var(--bg)}
+.footer__inner .brand__tagline{color:rgba(255,255,255,0.5)}
+@media (max-width:900px){.stage__grid{grid-template-columns:1fr;gap:32px}.stage__code{font-size:clamp(96px,25vw,160px)}}
+@media (max-width:600px){.nav__inner{flex-wrap:wrap}}
+@media print{.nav,.topstrip{display:none}.stage__code em{color:#000}}
+@media (prefers-color-scheme: dark){:root{--bg:#0B0F16;--surface:#131924;--ink:#F5F7FA;--ink-2:rgba(245,247,250,0.78);--muted:rgba(245,247,250,0.42);--rule:rgba(255,255,255,0.10);--accent:#4B9EFF}html,body{background:var(--bg)}.nav{background:rgba(11,15,22,0.85)}.brand__mark{background:var(--ink);color:var(--bg)}.stage{background:radial-gradient(ellipse 60% 40% at 20% 60%,rgba(75,158,255,0.08),transparent 70%),radial-gradient(ellipse 40% 40% at 90% 30%,rgba(201,169,97,0.06),transparent 70%),var(--bg)}.suggestions__list a{border-color:var(--rule);color:var(--ink-2)}footer{background:#050810}.footer__inner .brand__mark{background:var(--ink);color:var(--bg)}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="topstrip">
+  <div class="container" style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center;">
+    <span>Algo Veil Technologies · Page not found</span>
+    <a href="mailto:hello@algoveil.tech" style="color:rgba(255,255,255,0.9);">hello@algoveil.tech</a>
+  </div>
+</div>
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="/" class="brand"><span class="brand__mark">AV</span><span class="brand__names"><span class="brand__name">Algo Veil</span><span class="brand__tagline">Technologies · LLC</span></span></a>
+    <a href="/" style="font-size:14px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;">← Back to home</a>
+  </div>
+</nav>
+</header>
+
+<main class="stage">
+  <div class="container">
+    <div class="stage__grid">
+      <div>
+        <div class="stage__eyebrow">Error 404</div>
+        <div class="stage__code">4<em>0</em>4</div>
+      </div>
+      <div>
+        <h1 class="stage__title">This page is <em>not in production.</em></h1>
+        <p class="stage__desc">The URL you followed doesn't match anything on this site — either the link is out of date, or the resource has moved. Below are a few places you might have meant to go.</p>
+        <div class="stage__ctas">
+          <a href="/" class="btn btn--primary">Back to home<span class="arrow">→</span></a>
+          <a href="mailto:hello@algoveil.tech?subject=Broken%20link" class="btn btn--secondary">Report broken link</a>
+        </div>
+        <div class="suggestions">
+          <div class="suggestions__label">Perhaps you were looking for</div>
+          <div class="suggestions__list">
+            <a href="/#services"><span>Practices — Agents, RAG, Gateways, Systems</span><span class="arrow">→</span></a>
+            <a href="/#work"><span>Selected work &amp; case studies</span><span class="arrow">→</span></a>
+            <a href="/#engagements"><span>How we engage — pricing &amp; approach</span><span class="arrow">→</span></a>
+            <a href="/#about"><span>About the practice</span><span class="arrow">→</span></a>
+            <a href="/#contact"><span>Book a discovery call</span><span class="arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer__inner">
+    <a href="/" class="brand"><span class="brand__mark">AV</span><span class="brand__names"><span class="brand__name">Algo Veil</span><span class="brand__tagline">Technologies · LLC</span></span></a>
+    <div>© <span id="y">2026</span> Algo Veil Technologies, LLC · Registered in Delaware, USA</div>
+    <div style="display:flex;gap:20px;"><a href="/privacy.html" style="color:rgba(255,255,255,0.75);">Privacy</a><a href="/terms.html" style="color:rgba(255,255,255,0.75);">Terms</a><a href="/cookies.html" style="color:rgba(255,255,255,0.75);">Cookies</a></div>
+  </div>
+</footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear();</script>
+</body>
+</html>

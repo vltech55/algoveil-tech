@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bastion — Multi-provider LLM gateway · Case study · Algo Veil</title>
+<meta name="description" content="An open-source OpenAI-compatible gateway across OpenAI, Anthropic, and AWS Bedrock. Ordered fallback, circuit breakers, deterministic prefix cache, full observability.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://algoveil.tech/work/bastion.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230B1F3A'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='500' text-anchor='middle' fill='%23fff' letter-spacing='-1'%3EAV%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/work/case-study.css">
+</head>
+<body>
+
+<header>
+<div class="topstrip">
+  <div class="container topstrip__inner">
+    <span>Algo Veil Technologies · Case study · Open source</span>
+    <a href="https://github.com/vltech55/bastion-gateway" target="_blank" rel="noopener">github.com/vltech55/bastion-gateway</a>
+  </div>
+</div>
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="/" class="brand"><span class="brand__mark">AV</span><span class="brand__names"><span class="brand__name">Algo Veil</span><span class="brand__tagline">Technologies · LLC</span></span></a>
+    <a href="/#work" class="nav__back"><span class="arrow">←</span>All work</a>
+  </div>
+</nav>
+</header>
+
+<main>
+<div class="container">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a><span>/</span><a href="/#work">Work</a><span>/</span><span style="color:var(--ink)">Bastion</span>
+  </nav>
+</div>
+
+<section class="case-hero">
+  <div class="container">
+    <div class="case-hero__eyebrow">Case study · LLM Gateway · Open source</div>
+    <h1>Bastion — one API, <em>three providers,</em> circuit breakers, and a cache.</h1>
+    <p class="case-hero__lede">An <strong>open-source reference implementation</strong> of a resilient LLM gateway — drop-in OpenAI-compatible API across OpenAI, Anthropic, and AWS Bedrock. Ordered fallback with per-provider circuit breakers, deterministic prefix cache, Prometheus + Grafana observability. Metrics on this page are measured on the <strong>reference workload</strong> in the repository, not a paid client engagement.</p>
+    <div class="case-hero__meta">
+      <div><div class="case-hero__meta__k">Type</div><div class="case-hero__meta__v">Open source · MIT</div></div>
+      <div><div class="case-hero__meta__k">Status</div><div class="case-hero__meta__v">Active · Q3 2026</div></div>
+      <div><div class="case-hero__meta__k">Stack</div><div class="case-hero__meta__v">Python · FastAPI · Redis · Prometheus · K8s</div></div>
+      <div><div class="case-hero__meta__k">Repository</div><div class="case-hero__meta__v"><a href="https://github.com/vltech55/bastion-gateway" target="_blank" rel="noopener">github.com/vltech55/bastion-gateway</a></div></div>
+    </div>
+    <div class="case-panel" aria-hidden="true" style="view-transition-name: case-hero-bastion;">
+      <div class="case-panel__glow"></div>
+      <div class="case-panel__grid"></div>
+      <div class="case-panel__badge">
+        <div class="case-panel__badge__k">Reference behavior</div>
+        <div class="case-panel__badge__v">"Designed to survive a full primary-provider outage without user-visible downtime."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="case-body">
+  <div class="container" style="display:contents;">
+    <aside class="case-toc" aria-label="Case study sections">
+      <div class="case-toc__label">On this page</div>
+      <ol>
+        <li><a href="#why">Why a gateway</a></li>
+        <li><a href="#fallback">Ordered fallback</a></li>
+        <li><a href="#breakers">Circuit breakers</a></li>
+        <li><a href="#cache">Prefix cache</a></li>
+        <li><a href="#observability">Observability</a></li>
+        <li><a href="#deploy">Deploy</a></li>
+        <li><a href="#metrics">Metrics</a></li>
+        <li><a href="#use">When to use it</a></li>
+      </ol>
+    </aside>
+
+    <div class="case-content">
+      <h2 id="why">Why a gateway</h2>
+      <p>Direct SDK calls into a single LLM provider work fine — until they don't. When your primary provider has an outage, or their per-tenant rate limit trips at 3am, or a specific model version starts drifting, you need a layer that (a) fails over to another provider transparently, (b) circuit-breaks the sick provider before you burn latency retrying it, and (c) caches deterministic requests so you're not paying for the same completion twice.</p>
+      <p>Bastion is that layer. It speaks the OpenAI Chat Completions and Responses APIs on the client side, so any existing OpenAI SDK works unchanged — you point <code>base_url</code> at Bastion and it fans out across providers.</p>
+
+      <h2 id="fallback">Ordered fallback</h2>
+      <p>Each route defines an ordered list of provider/model pairs. A request tries them in order until one succeeds. The order is per-route (not global) so a "creative writing" route can prefer Claude, a "code completion" route can prefer GPT, and both share the same infrastructure.</p>
+      <div class="code">route: <span class="k">"chat.default"</span>
+providers:
+  - openai / gpt-5
+  - anthropic / claude-opus-4-8
+  - bedrock / claude-opus-4-8   # regional fallback
+
+on_failure:
+  - <span class="k">retry_next_provider</span>
+  - <span class="k">record_metric</span>: provider.failure
+  - <span class="k">circuit_breaker</span>: 5xx or 429 → open</div>
+
+      <h2 id="breakers">Circuit breakers</h2>
+      <p>Each provider has an independent circuit breaker with three states:</p>
+      <ul>
+        <li><strong>Closed</strong> — normal operation. Failures increment a rolling counter.</li>
+        <li><strong>Open</strong> — after N failures within window T, the breaker opens and all requests skip this provider entirely for a cooldown period.</li>
+        <li><strong>Half-open</strong> — cooldown expired; the next request is a probe. Success → closes. Failure → back to open with a longer cooldown.</li>
+      </ul>
+      <p>Defaults: N=5, T=30s, initial cooldown 15s with exponential backoff up to 5 minutes. All configurable per-provider.</p>
+
+      <h2 id="cache">Prefix cache</h2>
+      <p>Deterministic requests (<code>temperature = 0</code> and <code>seed</code> set) can be cached by content hash. Bastion computes a hash over <code>(model, messages, temperature, seed, tool schemas)</code> and looks it up in Redis before hitting a provider. Cache hits return in single-digit milliseconds and don't count against provider quota.</p>
+      <div class="code">key = <span class="k">sha256</span>(model + messages + temperature + seed + tools)
+ttl = <span class="k">7d</span>   # configurable per-route
+
+on_hit:
+  return cached response, no provider call
+on_miss:
+  call provider, store response, return</div>
+      <p>On the reference workload (structured extraction, deterministic classifier calls), the cache hit rate is <strong>71%</strong> — the same call rarely gets a fresh answer, and streaming isn't blocked because deterministic requests aren't streamed anyway.</p>
+
+      <h2 id="observability">Observability</h2>
+      <p>Every request emits Prometheus metrics tagged with <code>route, provider, model, status, tenant, cache_hit</code>. Grafana dashboards ship with the repo:</p>
+      <ul>
+        <li>Request rate + p50/p95/p99 latency per route</li>
+        <li>Per-provider success rate and circuit-breaker state</li>
+        <li>Cache hit rate + Redis memory usage</li>
+        <li>Cost estimate per tenant (tokens × provider rate)</li>
+      </ul>
+
+      <h2 id="deploy">Deploy</h2>
+      <p>Kubernetes manifests, Helm chart, and Docker Compose file included. Horizontal scale is trivial — Bastion is stateless; Redis is the only shared state. Typical deployment is 2 replicas behind a load balancer with a single Redis for cache.</p>
+
+      <div class="pullquote">
+        The point isn't that any single provider will fail. It's that all of them will, and you shouldn't be writing retry logic in twelve different services.
+        <cite>— From the design note</cite>
+      </div>
+
+      <h2 id="metrics">Metrics</h2>
+      <div class="metrics-inline">
+        <div class="metrics-inline__cell"><div class="metrics-inline__v"><em>71</em>%</div><div class="metrics-inline__l">Cache hit rate</div></div>
+        <div class="metrics-inline__cell"><div class="metrics-inline__v"><em>3</em></div><div class="metrics-inline__l">Providers, one API</div></div>
+        <div class="metrics-inline__cell"><div class="metrics-inline__v">&lt;<em>5</em>ms</div><div class="metrics-inline__l">Cache-hit response time</div></div>
+        <div class="metrics-inline__cell"><div class="metrics-inline__v"><em>3</em>-state</div><div class="metrics-inline__l">Breaker: closed · open · half-open</div></div>
+      </div>
+
+      <h2 id="use">When to use it</h2>
+      <p>Bastion is the right starting point when: (a) you already have services calling an LLM SDK directly and want to add resilience without rewriting them, (b) a single provider outage would degrade a customer-facing surface, or (c) you have deterministic workloads (extraction, classification, evals) that would benefit from a shared cache.</p>
+      <p>It is not the right fit for: (a) single-tenant hobby projects where a 5-minute outage is fine, (b) streaming-only chat where the cache doesn't help, or (c) cases where you need provider-specific features that can't be normalized (e.g. Claude's computer-use tool).</p>
+    </div>
+  </div>
+</section>
+
+<section class="related">
+  <div class="container">
+    <div class="related__label">More work</div>
+    <h2 class="related__title">Related <em>engagements.</em></h2>
+    <div class="related__grid">
+      <a href="/work/acuity.html" class="related__card">
+        <div class="related__card__tag">Production RAG · OSS</div>
+        <div class="related__card__title">Acuity — hybrid retrieval, faithfulness eval</div>
+        <p class="related__card__desc">Hybrid BM25 + pgvector · RRF · cross-encoder rerank · 0.96 avg faithfulness.</p>
+      </a>
+      <a href="/work/cadence.html" class="related__card">
+        <div class="related__card__tag">Client · Voice AI</div>
+        <div class="related__card__title">Cadence — sub-500ms voice AI</div>
+        <p class="related__card__desc">Streaming STT → LLM → TTS · tenant-isolated PHI · 82% call auto-resolution.</p>
+      </a>
+      <a href="/work/sentinel.html" class="related__card">
+        <div class="related__card__tag">Client · Analysis</div>
+        <div class="related__card__title">Sentinel — forensic interview analysis</div>
+        <p class="related__card__desc">Long-form intelligence · cross-document search · structured extraction.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container cta__inner">
+    <h2>Need resilience in front of <em>a critical LLM path?</em></h2>
+    <p>Thirty-minute discovery call. Written architecture and SOW before any commitment.</p>
+    <div class="cta__actions">
+      <a href="/#contact" class="btn btn--white">Schedule a call<span class="arrow">→</span></a>
+      <a href="https://github.com/vltech55/bastion-gateway" target="_blank" rel="noopener" class="btn btn--ghost-light">View repository</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container footer__inner">
+    <a href="/" class="brand"><span class="brand__mark">AV</span><span class="brand__names"><span class="brand__name">Algo Veil</span><span class="brand__tagline">Technologies · LLC</span></span></a>
+    <div>© <span id="y">2026</span> Algo Veil Technologies, LLC · Registered in Delaware, USA</div>
+    <div class="footer__legal"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/cookies.html">Cookies</a></div>
+  </div>
+</footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear();</script>
+</body>
+</html>

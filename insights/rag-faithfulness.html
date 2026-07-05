@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Faithfulness is a testing discipline, not a prompt · Algo Veil</title>
+<meta name="description" content="Most RAG systems ship with a hope-and-pray attitude toward hallucination. Here's a concrete, per-commit evaluation harness that turns citation faithfulness into a build-time gate.">
+<meta name="robots" content="index,follow">
+<meta name="author" content="Vlad L.">
+<link rel="canonical" href="https://algoveil.tech/insights/rag-faithfulness.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230B1F3A'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='500' text-anchor='middle' fill='%23fff' letter-spacing='-1'%3EAV%3C/text%3E%3C/svg%3E">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Faithfulness is a testing discipline, not a prompt.">
+<meta property="og:description" content="Turn RAG citation faithfulness into a build-time gate — with a per-commit evaluation harness.">
+<meta property="og:url" content="https://algoveil.tech/insights/rag-faithfulness.html">
+<meta property="article:published_time" content="2026-07-01">
+<meta property="article:author" content="Vlad L.">
+<meta property="article:section" content="Retrieval & RAG">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/work/case-study.css">
+
+<!-- Article structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Faithfulness is a testing discipline, not a prompt.",
+  "description": "A per-commit evaluation harness that turns RAG citation faithfulness into a build-time gate.",
+  "datePublished": "2026-07-01",
+  "author": { "@type": "Person", "name": "Vlad L." },
+  "publisher": { "@type": "Organization", "name": "Algo Veil Technologies, LLC" },
+  "mainEntityOfPage": "https://algoveil.tech/insights/rag-faithfulness.html"
+}
+</script>
+
+<style>
+  .article-hero { padding: 60px 0 40px; border-bottom: 1px solid var(--rule); }
+  .article-hero__meta { display: flex; gap: 24px; flex-wrap: wrap; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 24px; }
+  .article-hero__meta .cat { color: var(--accent); }
+  .article-hero h1 { font-size: clamp(40px, 5.4vw, 68px); line-height: 1.02; letter-spacing: -0.03em; margin-bottom: 24px; max-width: 22ch; text-wrap: balance; font-weight: 400; }
+  .article-hero h1 em { font-style: italic; color: var(--accent); }
+  .article-hero__lede { font-size: 21px; line-height: 1.5; color: var(--ink-2); max-width: 720px; letter-spacing: -0.005em; }
+  .article-hero__lede strong { color: var(--ink); font-weight: 500; }
+  .article-hero__byline { display: flex; align-items: center; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--rule); }
+  .article-hero__byline__avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--bg); display: inline-flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 500; font-size: 16px; letter-spacing: -0.01em; }
+  .article-hero__byline__name { font-size: 14px; color: var(--ink); font-weight: 500; line-height: 1.2; }
+  .article-hero__byline__role { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+  .article-body { padding: 60px 0 100px; display: grid; grid-template-columns: 240px 1fr; gap: 60px; align-items: start; }
+  .article-toc { position: sticky; top: 90px; border-left: 2px solid var(--rule); padding-left: 20px; }
+  .article-toc__label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .article-toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+  .article-toc li { counter-increment: toc; margin-bottom: 8px; }
+  .article-toc a { display: block; color: var(--ink-2); font-size: 13.5px; padding: 4px 0; line-height: 1.4; text-decoration: none; }
+  .article-toc a::before { content: counter(toc, decimal-leading-zero) " · "; font-family: var(--mono); color: var(--muted); font-size: 11px; }
+  .article-toc a:hover { color: var(--accent); }
+  .article-content { max-width: 720px; }
+  .article-content h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.08; letter-spacing: -0.026em; color: var(--ink); margin: 56px 0 20px; scroll-margin-top: 90px; font-optical-sizing: auto; }
+  .article-content h2 em { font-style: italic; color: var(--accent); }
+  .article-content h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; line-height: 1.2; letter-spacing: -0.02em; color: var(--ink); margin: 40px 0 14px; font-optical-sizing: auto; }
+  .article-content p { margin: 0 0 18px; font-size: 17px; line-height: 1.75; color: var(--ink-2); }
+  .article-content p strong { color: var(--ink); font-weight: 500; }
+  .article-content ul, .article-content ol { padding-left: 24px; margin: 0 0 20px; }
+  .article-content li { margin-bottom: 10px; font-size: 16.5px; line-height: 1.7; }
+  .article-content code { font-family: var(--mono); font-size: 0.9em; background: var(--surface-2); padding: 2px 6px; border-radius: 2px; color: var(--ink); }
+  .article-content pre { margin: 24px 0; padding: 24px 28px; background: var(--surface); border: 1px solid var(--rule); font-family: var(--mono); font-size: 13.5px; line-height: 1.65; color: var(--ink-2); overflow-x: auto; }
+  .article-content pre code { background: transparent; padding: 0; font-size: inherit; color: inherit; }
+  .article-content .pullquote { margin: 40px 0; padding: 32px 40px; background: var(--surface); border-left: 3px solid var(--accent); font-family: var(--serif); font-style: italic; font-size: 22px; line-height: 1.4; color: var(--ink); font-optical-sizing: auto; }
+  .article-content .callout { margin: 28px 0; padding: 20px 24px; background: var(--surface); border-left: 3px solid var(--gold); font-size: 15px; line-height: 1.6; }
+  .article-content .callout b { color: var(--ink); font-weight: 500; display: block; margin-bottom: 4px; }
+  .article-content .kv { margin: 24px 0; padding: 24px 28px; border: 1px solid var(--rule); }
+  .article-content .kv table { width: 100%; border-collapse: collapse; }
+  .article-content .kv th, .article-content .kv td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 14.5px; }
+  .article-content .kv tr:last-child th, .article-content .kv tr:last-child td { border-bottom: 0; }
+  .article-content .kv th { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; width: 40%; }
+  .article-content .kv td { color: var(--ink); font-weight: 500; }
+  .article-foot { padding: 40px 0; border-top: 1px solid var(--rule); margin-top: 60px; }
+  @media (max-width: 900px) {
+    .article-body { grid-template-columns: 1fr; gap: 32px; }
+    .article-toc { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+<div class="topstrip">
+  <div class="container topstrip__inner">
+    <span>Algo Veil · Insights · Retrieval &amp; RAG</span>
+    <a href="/insights.html">All insights</a>
+  </div>
+</div>
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="/" class="brand"><span class="brand__mark">AV</span><span class="brand__names"><span class="brand__name">Algo Veil</span><span class="brand__tagline">Technologies · LLC</span></span></a>
+    <a href="/insights.html" class="nav__back"><span class="arrow">←</span>All insights</a>
+  </div>
+</nav>
+</header>
+
+<main>
+<div class="container">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a><span>/</span><a href="/insights.html">Insights</a><span>/</span><span style="color:var(--ink)">Faithfulness is a testing discipline</span>
+  </nav>
+</div>
+
+<article>
+<section class="article-hero">
+  <div class="container">
+    <div class="article-hero__meta">
+      <span class="cat">Retrieval &amp; RAG</span>
+      <span>2026-07-01</span>
+      <span>14 min read</span>
+    </div>
+    <h1>Faithfulness is a <em>testing discipline,</em> not a prompt.</h1>
+    <p class="article-hero__lede">Most RAG systems ship with a hope-and-pray attitude toward hallucination. Here's how to turn <strong>citation faithfulness</strong> into a build-time gate — a per-commit evaluation harness that catches regressions before they reach production. With worked examples from a system running at 0.96 average faithfulness.</p>
+    <div class="article-hero__byline">
+      <span class="article-hero__byline__avatar" aria-hidden="true">V</span>
+      <div>
+        <div class="article-hero__byline__name">Vlad L.</div>
+        <div class="article-hero__byline__role">Founder · Algo Veil Technologies</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="article-body">
+  <div class="container" style="display:contents;">
+    <aside class="article-toc" aria-label="Article sections">
+      <div class="article-toc__label">On this page</div>
+      <ol>
+        <li><a href="#the-problem">The problem</a></li>
+        <li><a href="#definition">Definition</a></li>
+        <li><a href="#golden-set">Golden set</a></li>
+        <li><a href="#scoring">Scoring</a></li>
+        <li><a href="#harness">The harness</a></li>
+        <li><a href="#failures">Failure modes</a></li>
+        <li><a href="#budget">Cost budget</a></li>
+        <li><a href="#wrap">Wrap</a></li>
+      </ol>
+    </aside>
+
+    <div class="article-content">
+
+      <h2 id="the-problem">The problem</h2>
+      <p>Every RAG system has the same failure mode: the retriever returns a chunk that <em>looks</em> relevant, the LLM generates an answer that <em>reads</em> confident, and neither the retriever nor the LLM noticed that the answer isn't actually in the retrieved chunk. The answer is plausible. It is not faithful.</p>
+      <p>Prompt engineering — <em>"only answer using the provided context"</em>, <em>"cite the exact passage"</em>, <em>"say I don't know if unsure"</em> — reduces the failure rate. It does not eliminate it. And here's the operational problem: you can't tell from the answer alone whether the retriever picked a bad chunk or the LLM ignored a good one. Both look the same to the user.</p>
+      <p>The solution isn't a better prompt. It's a test suite.</p>
+
+      <div class="pullquote">
+        You can't tell from the answer whether the retriever misfired or the LLM hallucinated. Both look the same to the user. Only a test suite tells you which one is broken.
+      </div>
+
+      <h2 id="definition">What faithfulness means, exactly</h2>
+      <p>The term gets used loosely. Let's pin it:</p>
+      <p><strong>Faithfulness</strong> is a per-claim property. For every atomic claim in the LLM's answer, the retrieved chunk it cites must actually support that claim. It's a binary yes/no per claim, aggregated to a score for the answer.</p>
+      <p>Faithfulness is <em>not</em>:</p>
+      <ul>
+        <li><strong>Answer relevance</strong> — does the answer address the question? (a different metric)</li>
+        <li><strong>Retrieval precision</strong> — did the retriever return chunks about the right topic? (upstream of faithfulness)</li>
+        <li><strong>Correctness</strong> — is the answer true in the world? (retrieval can be faithful to a chunk that is itself wrong)</li>
+      </ul>
+      <p>Faithfulness is a <em>local</em> property: the claim is supported by the chunk. Whether the chunk is correct, whether the answer addresses the question, and whether the retrieval was good — those are separate metrics with separate tests.</p>
+
+      <h2 id="golden-set">Building the golden set</h2>
+      <p>The heart of the harness is a golden set of question / expected-answer / expected-citation triples. Every merge to main runs the full pipeline against this set and computes faithfulness.</p>
+      <p>Building a good golden set is where most teams stall. Three rules I've held to across engagements:</p>
+
+      <h3>Rule 1 — Cover the failure modes you've seen</h3>
+      <p>Every user-reported hallucination becomes a golden-set entry. This is the most important rule. If a claim was wrong once, it will be wrong again — either from the same chunk, or from a paraphrase of the same chunk, or from a completely different query that happens to trip the same weakness in the retriever.</p>
+      <p>Concretely: when a user flags an answer, capture the query, the retrieved chunks, the answer, and the actual correct answer. Add all four to the golden set. It becomes a regression test.</p>
+
+      <h3>Rule 2 — Cover the shape of the corpus, not just the topic</h3>
+      <p>If your corpus has both concise-fact chunks (dates, numbers, definitions) and long-narrative chunks (explanations, procedures, arguments), your golden set needs entries from both. The retriever behaves differently on short chunks vs long ones. The LLM extracts differently from a definition vs a paragraph.</p>
+
+      <h3>Rule 3 — Include negative examples</h3>
+      <p>Questions the corpus <em>doesn't</em> answer. The correct behavior is a refusal — "the provided context does not contain that information." Every third or fourth golden-set entry should be a negative. Otherwise your harness silently rewards over-confident answers.</p>
+
+      <div class="callout">
+        <b>Rule of thumb</b>
+        Start with 30-50 entries. It's manageable to hand-curate. You'll add another 5-10 per week from real user feedback. After six months you'll have 200-400 entries and the harness will catch regressions before humans notice them.
+      </div>
+
+      <h2 id="scoring">Scoring per claim</h2>
+      <p>The atomic unit is the claim, not the answer. For each answer produced against the golden set:</p>
+      <ol>
+        <li>Split the answer into atomic claims. A separate LLM call does this — the prompt is <em>"decompose this answer into a list of independent factual claims, each verifiable against a single source"</em>.</li>
+        <li>For each claim, pair it with the retrieved chunk that the citation points to.</li>
+        <li>Score the pair with the RAGAS faithfulness rubric — is the claim supported by the chunk? Yes / no / partial.</li>
+        <li>Aggregate: <code>faithfulness = supported_claims / total_claims</code>.</li>
+      </ol>
+      <p>Below the threshold — I typically set 0.90 as the CI-fail line — the answer is flagged. In production, flagged answers are shown to the user with a "reduced confidence" indicator rather than silently returned.</p>
+
+      <h3>Watch out for the LLM-as-judge trap</h3>
+      <p>You're using an LLM to score claims produced by an LLM. If both models share failure modes, you'll get high faithfulness scores on answers that are hallucinated in ways the judge model also hallucinates. Two guardrails:</p>
+      <ul>
+        <li><strong>Use a different model family for the judge</strong> than the generator. If Claude generates, use GPT to judge (or vice versa).</li>
+        <li><strong>Calibrate the judge against human labels quarterly.</strong> Sample 30 pairs, have a human score them, compare to the judge. Judge-vs-human agreement should stay above 0.90. If it drifts, the judge model needs retraining.</li>
+      </ul>
+
+      <h2 id="harness">The harness itself</h2>
+      <p>The whole thing is one CI job. Here's the shape:</p>
+      <pre><code># .github/workflows/rag-eval.yml
+name: RAG eval
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  faithfulness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -r requirements.txt
+      - run: python -m acuity.eval.run --golden data/golden.jsonl --out eval-report.json
+      - run: python -m acuity.eval.gate --report eval-report.json --threshold 0.90
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eval-report-${{ github.sha }}
+          path: eval-report.json</code></pre>
+
+      <p>The <code>run</code> subcommand re-executes the full pipeline (retrieval + generation) against every golden entry and writes a per-claim JSON report keyed to the git SHA. The <code>gate</code> subcommand exits non-zero if the aggregate faithfulness dips below the threshold — the PR fails to merge.</p>
+
+      <div class="kv">
+        <table>
+          <tr><th>Golden set entries</th><td>200-400 typical after 6 months</td></tr>
+          <tr><th>Runtime</th><td>10-15 minutes on GitHub Actions</td></tr>
+          <tr><th>Cost per full run</th><td>$3-8 in judge-model tokens</td></tr>
+          <tr><th>CI-fail threshold</th><td>Faithfulness < 0.90 (tunable per project)</td></tr>
+          <tr><th>Judge model</th><td>Different family from the generator</td></tr>
+        </table>
+      </div>
+
+      <h2 id="failures">Failure modes I've seen</h2>
+
+      <h3>Prompt change silently drops citations</h3>
+      <p>Someone tightens the system prompt to make the answers shorter. The LLM interprets "shorter" as "drop the citations". Faithfulness stays at 0.96 because the remaining claims are still supported — but users can no longer verify anything. The harness didn't catch this because it scored only cited claims. <strong>Fix:</strong> add a citation-density metric — claims-with-citations divided by total-claims — as a separate gate.</p>
+
+      <h3>Retriever version bump breaks a specific slice</h3>
+      <p>New embedding model, aggregate faithfulness identical, but the "policy override" query slice tanks from 0.94 to 0.71. Aggregate score hid the regression. <strong>Fix:</strong> report faithfulness per slice (by query pattern, by document type, by intent) — not just a global number. Gate on the worst slice, not the mean.</p>
+
+      <h3>Golden set drift</h3>
+      <p>The corpus updates. Documents get revised. Old golden entries still assert claims against passages that no longer exist. Score drops mysteriously. <strong>Fix:</strong> golden-set entries carry an anchor to the specific chunk-hash they were authored against. If the anchor no longer exists, the entry is flagged for re-review rather than scored as a failure.</p>
+
+      <h2 id="budget">Cost budget</h2>
+      <p>Faithfulness scoring is not free. For each answer under evaluation you make roughly one decompose-into-claims call and N score-per-claim calls. On a 200-entry golden set with average 4 claims per answer, that's ~1,000 judge-model calls per CI run.</p>
+      <p>The math: at Claude Opus rates in mid-2026, a full eval run costs $3-8. Running on every PR is $60-160 per month at a moderate merge cadence. Cheap insurance.</p>
+
+      <h2 id="wrap">Wrap</h2>
+      <p>Faithfulness is a testing discipline, not a prompt engineering exercise. Build the golden set from real user failures. Score per-claim, not per-answer. Use a different-family judge. Gate on the worst slice, not the mean. Report per git SHA. Fail the build.</p>
+      <p>Every prompt change becomes measurable. Every eval failure has a specific claim/chunk pair to inspect. And "we don't hallucinate" stops being an aspiration and becomes a build-time contract.</p>
+
+      <div class="callout">
+        <b>Companion open-source project</b>
+        <a href="/work/acuity.html">Acuity</a> is the production reference — hybrid retrieval, cross-encoder rerank, and this exact eval harness wired into CI. MIT-licensed on <a href="https://github.com/vltech55/acuity-rag" target="_blank" rel="noopener">GitHub</a>.
+      </div>
+
+    </div>
+  </div>
+</section>
+</article>
+
+<section class="cta">
+  <div class="container cta__inner">
+    <h2>Building a RAG system that has to <em>stay accurate?</em></h2>
+    <p>Thirty-minute discovery call. Written architecture and SOW before any commitment.</p>
+    <div class="cta__actions">
+      <a href="/#contact" class="btn btn--white">Schedule a call<span class="arrow">→</span></a>
+      <a href="/insights.html" class="btn btn--ghost-light">More insights</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container footer__inner">
+    <a href="/" class="brand"><span class="brand__mark">AV</span><span class="brand__names"><span class="brand__name">Algo Veil</span><span class="brand__tagline">Technologies · LLC</span></span></a>
+    <div>© <span id="y">2026</span> Algo Veil Technologies, LLC · Registered in Delaware, USA</div>
+    <div class="footer__legal"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/cookies.html">Cookies</a></div>
+  </div>
+</footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear();</script>
+</body>
+</html>

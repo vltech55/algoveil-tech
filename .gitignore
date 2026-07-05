@@ -1,0 +1,22 @@
+# Vercel
+.vercel/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (in case anyone adds a build later)
+node_modules/
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
