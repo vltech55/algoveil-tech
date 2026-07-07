@@ -171,14 +171,14 @@
       <p>The heart of the harness is a golden set of question / expected-answer / expected-citation triples. Every merge to main runs the full pipeline against this set and computes faithfulness.</p>
       <p>Building a good golden set is where most teams stall. Three rules I've held to across engagements:</p>
 
-      <h3>Rule 1 — Cover the failure modes you've seen</h3>
+      <h3>Rule 1. Cover the failure modes you've seen</h3>
       <p>Every user-reported hallucination becomes a golden-set entry. This is the most important rule. If a claim was wrong once, it will be wrong again — either from the same chunk, or from a paraphrase of the same chunk, or from a completely different query that happens to trip the same weakness in the retriever.</p>
       <p>Concretely: when a user flags an answer, capture the query, the retrieved chunks, the answer, and the actual correct answer. Add all four to the golden set. It becomes a regression test.</p>
 
-      <h3>Rule 2 — Cover the shape of the corpus, not just the topic</h3>
+      <h3>Rule 2. Cover the shape of the corpus, not just the topic</h3>
       <p>If your corpus has both concise-fact chunks (dates, numbers, definitions) and long-narrative chunks (explanations, procedures, arguments), your golden set needs entries from both. The retriever behaves differently on short chunks vs long ones. The LLM extracts differently from a definition vs a paragraph.</p>
 
-      <h3>Rule 3 — Include negative examples</h3>
+      <h3>Rule 3. Include negative examples</h3>
       <p>Questions the corpus <em>doesn't</em> answer. The correct behavior is a refusal — "the provided context does not contain that information." Every third or fourth golden-set entry should be a negative. Otherwise your harness silently rewards over-confident answers.</p>
 
       <div class="callout">
